@@ -3,16 +3,21 @@ const { Pool } = require('pg');
 
 // ── Pool configuration ────────────────────────────────────────────────────────
 const pool = new Pool({
-  user:                    process.env.DB_USER     || 'koku',
-  host:                    process.env.DB_HOST     || 'localhost',
-  database:                process.env.DB_NAME     || 'dtb',
-  password:                process.env.DB_PASSWORD,
-  port:                    parseInt(process.env.DB_PORT || '5432'),
-  max:                     parseInt(process.env.DB_POOL_MAX || '20'),
-  min:                     parseInt(process.env.DB_POOL_MIN || '2'),
+  user:     process.env.DB_USER     || 'postgres',
+  host:     process.env.DB_HOST     || 'localhost',
+  database: process.env.DB_NAME     || 'synthia',
+  password: process.env.DB_PASSWORD,
+  port:     parseInt(process.env.DB_PORT || '5432'),
+  max:      parseInt(process.env.DB_POOL_MAX || '20'),
+  min:      parseInt(process.env.DB_POOL_MIN || '2'),
   idleTimeoutMillis:       30_000,
   connectionTimeoutMillis: 5_000,
-  statement_timeout:       10_000,  // Kill runaway queries after 10 s
+  statement_timeout:       10_000,
+
+  // ← Add this block for Railway SSL
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 pool.on('error', (err) => console.error('[DB] Pool error:', err.message));
